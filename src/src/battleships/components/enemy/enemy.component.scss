@@ -1,0 +1,10 @@
+div.desk-wrapper{
+
+  &:not(.started) {
+    display: none;
+  }
+
+  canvas#enemy-desk{
+    background: #000000;
+  }
+}

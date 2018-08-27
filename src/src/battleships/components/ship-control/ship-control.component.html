@@ -1,0 +1,14 @@
+<div class="ship-control" [ngClass]="stanceClasses">
+	<h3>Chose your ships!</h3>
+	<div class="row">
+		<div class="col">
+      <battleships-submarine [color]="'#252525'" (status)="checkSubmarine($event)"></battleships-submarine>
+		</div>
+		<div class="col">
+      <battleships-battleship [color]="'#ff9966'" (status)="checkBattleship($event)"></battleships-battleship>
+		</div>
+		<div class="col">
+      <battleships-flattop [color]="'#A41434'" (status)="checkFlattop($event)"></battleships-flattop>
+		</div>
+	</div>
+</div>

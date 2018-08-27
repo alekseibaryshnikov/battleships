@@ -1,0 +1,1 @@
+export { BattleShipsModule } from './battleships.module';

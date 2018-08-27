@@ -1,0 +1,78 @@
+div.wrapper{
+  box-shadow: none;
+  border-radius: 10px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding: 1rem;
+  
+  &.disabled{
+    pointer-events: none;
+    background: rgba(0, 0, 0, 0.5);
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  div.ship{
+    width: 30px;
+    height: 99px;
+    position: relative;
+    transition: transform .3s;
+    margin: auto;
+    margin-top: 1rem;
+    cursor: pointer;
+
+    div.icon{
+      width: 30px;
+      height: 30px;
+      border: 3px solid #000000;
+      border-bottom: none;
+
+      &:nth-child(3) {
+        border-bottom: 3px solid #000000;
+      }
+
+      &:last-child{
+        transform: translate(33px, -36px);
+        border-bottom: 3px solid #000000;
+      }
+    }
+  }
+
+  div.title{
+    letter-spacing: .15rem;
+    padding: 0 0 .5rem 0;
+    font-family: Lato;
+    font-size: .8rem;
+    text-align: center;
+
+    span{
+      background: yellow;
+      padding: 0 .25rem;
+      border-radius: 1rem;
+    }
+  }
+
+  div.rotate{
+    text-align: center;
+    padding-bottom: 1rem;
+    padding-top: .25rem;
+
+    span{
+      $red: #cc0000;
+      border: 2px solid $red;
+      text-transform: uppercase;
+      padding: .1rem 1rem .2rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: color .2s, background .2s;
+
+      &:hover{
+        background: $red;
+        color: white;
+      }
+      
+      user-select: none;
+    }
+  }
+}

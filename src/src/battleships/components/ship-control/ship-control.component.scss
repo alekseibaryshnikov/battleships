@@ -1,0 +1,20 @@
+div.ship-control{
+  padding: 1.5rem 0;
+  &.disabled{
+    display: none;
+  }
+  h3{
+    text-align: center;
+    padding-top: 0;
+    margin-top: 0;
+  }
+
+  div.row{
+    display: flex;
+
+    div.col{
+      flex-basis: 33%;
+      padding: 1rem;
+    }
+  }
+}

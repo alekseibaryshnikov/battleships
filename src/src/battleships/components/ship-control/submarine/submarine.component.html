@@ -1,0 +1,8 @@
+<div class="wrapper" [@isActive]="isActive" [ngClass]="stanceClasses">
+	<div>
+		<div class="title">submarine: <span>{{2 - counter}}</span> units</div>
+		<div class="ship" battleshipsOutclick (outclicked)="activate($event)">
+			<div class="icon"></div>
+		</div>
+	</div>
+</div>

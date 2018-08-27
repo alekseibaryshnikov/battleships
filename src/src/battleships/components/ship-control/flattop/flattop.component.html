@@ -1,0 +1,14 @@
+<div class="wrapper" [@isActive]="isActive" [ngClass]="stanceClasses">
+	<div>
+		<div class="title">flattop: <span>{{1 - counter}}</span> units</div>
+		<div class="rotate">
+			<span (click)="rotate()">rotate</span>
+		</div>
+		<div class="ship" [@shipState]="shipState" battleshipsOutclick (outclicked)="activate($event)">
+			<div class="icon"></div>
+			<div class="icon"></div>
+			<div class="icon"></div>
+			<div class="icon"></div>
+		</div>
+	</div>
+</div>
