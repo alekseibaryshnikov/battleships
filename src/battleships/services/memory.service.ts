@@ -5,7 +5,6 @@ import { IHoverShip } from './drawer';
 
 @Injectable()
 export class MemoryService {
-
   private _userShip = new Array<IShip>();
   private _fieldsStorage: IField[][];
 
@@ -22,11 +21,11 @@ export class MemoryService {
   public gameStarted = new Subject<boolean>();
   public AIStep = new Subject<boolean>();
 
-  constructor() { }
+  constructor() {}
 
   /**
    * Add drawed desk fields in fields storage
-   * 
+   *
    * TODO: Need to make method what will reset this storage
    *       when we are changing coordinates of window (resize, scrolls, etc).
    */
@@ -84,16 +83,24 @@ export class MemoryService {
   }
 
   /**
-   * Get field from fields storage by coodrinates 
+   * Get field from fields storage by coodrinates
    * and return field and indexes for fields storage array
    */
-  public getField(x: number, y: number, enemy?: boolean): { wanted: IField, indexes: { x: number, y: number } } {
+  public getField(
+    x: number,
+    y: number,
+    enemy?: boolean
+  ): { wanted: IField; indexes: { x: number; y: number } } {
     let wanted: IField;
-    let indexes = <{ x: number, y: number }>{};
-    const researchStorage = (enemy) ? this._enemyStorage : this._fieldsStorage;
+    const indexes = <{ x: number; y: number }>{};
+    const researchStorage = enemy ? this._enemyStorage : this._fieldsStorage;
     for (let i = 0; i < researchStorage.length; i++) {
       wanted = researchStorage[i].find((fieldX, index) => {
-        let result = x >= fieldX.x.start && x <= fieldX.x.end && y >= fieldX.y.start && y <= fieldX.y.end;
+        const result =
+          x >= fieldX.x.start &&
+          x <= fieldX.x.end &&
+          y >= fieldX.y.start &&
+          y <= fieldX.y.end;
         if (result) {
           indexes.x = i;
           indexes.y = index;
@@ -104,7 +111,7 @@ export class MemoryService {
         break;
       }
     }
-    return (wanted) ? { wanted, indexes } : undefined;
+    return wanted ? { wanted, indexes } : undefined;
   }
 
   /**
@@ -113,11 +120,15 @@ export class MemoryService {
    */
   public getAvailableFields(enemyStorage?: boolean): IField[] {
     const availableFields = new Array<IField>();
-    let storage = enemyStorage ? this._enemyStorage : this._fieldsStorage;
+    const storage = enemyStorage ? this._enemyStorage : this._fieldsStorage;
 
     for (let i = 0; i < storage.length; i++) {
       for (let j = 0; j < this._fieldsStorage[i].length; j++) {
-        if (!storage[i][j].isArea && !storage[i][j].isShip && !storage[i][j].isShooted) {
+        if (
+          !storage[i][j].isArea &&
+          !storage[i][j].isShip &&
+          !storage[i][j].isShooted
+        ) {
           availableFields.push(storage[i][j]);
         }
       }
@@ -143,7 +154,7 @@ export class MemoryService {
   }
 
   /**
-   * When brush is activated, this method save 
+   * When brush is activated, this method save
    * ship coordinates in variable of the service and
    * you can get it after
    */
@@ -164,7 +175,7 @@ export class MemoryService {
     this.shipsChanges.next(this._userShip.slice());
   }
 
-  public removeShip(coords: { x: number, y: number }): boolean {
+  public removeShip(coords: { x: number; y: number }): boolean {
     return false;
   }
 
@@ -196,7 +207,8 @@ export class MemoryService {
   }
 
   /**
-   * 
+   * Hit user ship
+   * Commonly this method use in enemy component for AI shooting
    */
   public hitUserShip(fieldElemnet: ICoordinates) {
     if (this._fieldsStorage[fieldElemnet.x][fieldElemnet.y].isShooted) {
@@ -223,26 +235,28 @@ export class MemoryService {
   }
 
   /**
-   * 
+   * Check availabe user and enemy ships
+   * If user or enemy have no ships game is ended
    */
   private _checkAvailableShips() {
-    let isShipExist: boolean = false;
+    let enemyShips = false;
+    let userShips = false;
 
     this._enemyShips.forEach(enemyShip => {
       if (enemyShip.status) {
-        isShipExist = true;
+        enemyShips = true;
         return;
       }
     });
 
-    // this._userShip.forEach(userShip => {
-    //   if (userShip.status) {
-    //     isShipExist = true;
-    //     return;
-    //   }
-    // });
+    this._userShip.forEach(userShip => {
+      if (userShip.status) {
+        userShips = true;
+        return;
+      }
+    });
 
-    this.gameStanceChange.next(isShipExist);
+    this.gameStanceChange.next(enemyShips && userShips);
   }
 
   /**
@@ -250,7 +264,7 @@ export class MemoryService {
    * TODO : may should be deleted, already exist in desk util
    */
   private _make() {
-    let matrix = [];
+    const matrix = [];
     for (let i = 0; i < 10; i++) {
       matrix[i] = new Array(10);
     }
@@ -266,7 +280,9 @@ export class MemoryService {
       this._fieldsStorage[field.indexes.x][field.indexes.y].isShip = true;
       this._setShipArea(field.indexes.x, field.indexes.y);
     } else {
-      console.error('Somethig goes wrong with setting ship flag for a field in memory.');
+      console.error(
+        'Somethig goes wrong with setting ship flag for a field in memory.'
+      );
     }
   }
 
@@ -275,15 +291,15 @@ export class MemoryService {
    * This need for disable fields around of ship
    */
   private _setShipArea(x: number, y: number) {
-    let xPivotMiddle = x;
-    let xPivotLeft = x - 1;
-    let xPivotRight = x + 1;
+    const xPivotMiddle = x;
+    const xPivotLeft = x - 1;
+    const xPivotRight = x + 1;
 
-    let yPivotMiddle = y;
-    let yPivotTop = y - 1;
-    let yPivotBottom = y + 1;
+    const yPivotMiddle = y;
+    const yPivotTop = y - 1;
+    const yPivotBottom = y + 1;
 
-    let matrixSize = this._fieldsStorage.length - 1;
+    const matrixSize = this._fieldsStorage.length - 1;
 
     // Set area for the top row from left to right
     if (xPivotLeft >= 0 && yPivotTop >= 0) {
@@ -298,7 +314,7 @@ export class MemoryService {
 
     // Set area for the middle row from left to right
     if (xPivotLeft >= 0) {
-      this._fieldsStorage[xPivotLeft][yPivotMiddle].isArea = true
+      this._fieldsStorage[xPivotLeft][yPivotMiddle].isArea = true;
     }
     if (xPivotRight <= matrixSize) {
       this._fieldsStorage[xPivotRight][yPivotMiddle].isArea = true;

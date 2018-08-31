@@ -1,4 +1,4 @@
 <div class="desk-wrapper" [ngClass]="stanceClasses">
-	<canvas id="enemy-desk" width="303" height="303" battleshipsOutclick UserInteractionDirective (clickCoords)="hit($event)"
-></canvas>
+  <canvas id="enemy-desk" width="303" height="303" battleshipsOutclick UserInteractionDirective (clickCoords)="hit($event)"
+    (targetCoords)="checkAvailability($event)"></canvas>
 </div>

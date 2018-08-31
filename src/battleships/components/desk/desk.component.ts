@@ -1,4 +1,12 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, ElementRef, Renderer2, Input } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  AfterViewInit,
+  ElementRef,
+  Renderer2,
+  Input
+} from '@angular/core';
 import { MemoryService } from '../../services/memory.service';
 import { EditorService } from '../../services/editor.service';
 import { DrawerService } from '../../services/drawer/drawer.service';
@@ -22,17 +30,17 @@ export class DeskComponent implements OnInit, AfterViewInit {
   public isActive: boolean;
 
   public statusClasses = {
-    'gameover': false
+    gameover: false
   };
 
   constructor(
     private _elementRef: ElementRef,
     private _drawerService: DrawerService,
     private _memoryService: MemoryService,
-    private _editorService: EditorService) { }
+    private _editorService: EditorService
+  ) {}
 
   ngOnInit() {
-
     // Look for changing brush
     this._editorService.activatedType.subscribe(activatedType => {
       this._activeBrush = activatedType.find(activeBrush => {
@@ -62,7 +70,9 @@ export class DeskComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    this._context = this._elementRef.nativeElement.querySelector('canvas#desk').getContext('2d');
+    this._context = this._elementRef.nativeElement
+      .querySelector('canvas#desk')
+      .getContext('2d');
     this._drawerService.initDesk(this._context);
   }
 
@@ -71,17 +81,19 @@ export class DeskComponent implements OnInit, AfterViewInit {
    * Ships are choosing by autoload from activated brush name
    *
    */
-  emitEditor(targetCoords: { x: number, y: number }) {
+  emitEditor(targetCoords: { x: number; y: number }) {
     if (this._activeBrush) {
       const field = this._memoryService.getField(
         targetCoords.x - this._drawerService.drawerConfig.squareSize,
-        targetCoords.y - this._drawerService.drawerConfig.squareSize);
+        targetCoords.y - this._drawerService.drawerConfig.squareSize
+      );
 
       if (field) {
         this._drawerService[`${this._activeBrush.name}Brush`](
           this._context,
           field,
-          this._activeBrush.rotation);
+          this._activeBrush.rotation
+        );
       }
     }
   }
@@ -100,7 +112,10 @@ export class DeskComponent implements OnInit, AfterViewInit {
    */
   addShip() {
     if (this._hoveredShip) {
-      const newShip = <IShip>{ fields: [], shipType: this._hoveredShip.shipType };
+      const newShip = <IShip>{
+        fields: [],
+        shipType: this._hoveredShip.shipType
+      };
       const newShipFields = [];
       this._hoveredShip.coordinates.forEach(coordinate => {
         const field = this._memoryService.getField(coordinate.x, coordinate.y);
@@ -110,6 +125,7 @@ export class DeskComponent implements OnInit, AfterViewInit {
       });
       newShip.fields = newShipFields;
       this._memoryService.addShip(newShip);
+      this._memoryService.hoveredShipChanges.next(undefined);
     }
   }
 }

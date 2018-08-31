@@ -1,4 +1,12 @@
-import { Component, OnInit, Input, Renderer2, ElementRef, Output, EventEmitter } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  Input,
+  Renderer2,
+  ElementRef,
+  Output,
+  EventEmitter
+} from '@angular/core';
 import { EditorService } from '../../../services/editor.service';
 import { MemoryService } from '../../../services/memory.service';
 import {
@@ -15,44 +23,64 @@ import {
   styleUrls: ['./battleship.component.scss'],
   animations: [
     trigger('shipState', [
-      state('horizontal', style({
-        transform: 'rotate(-90deg)'
-      })),
-      state('vertical', style({
-        transform: 'rotate(0)'
-      })),
-      transition('* => *', animate('100ms ease-in'))
+      state(
+        'horizontal',
+        style({
+          transform: 'rotate(-90deg)'
+        })
+      ),
+      state(
+        'vertical',
+        style({
+          transform: 'rotate(0)'
+        })
+      ),
+      transition('* => *', animate('50ms ease-in'))
     ]),
     trigger('isActive', [
-      state('active', style({
-        boxShadow: 'inset 0 0 10px 2px rgba(0, 0, 0, .3)'
-      })),
-      state('inactive', style({
-        boxShadow: 'none'
-      })),
+      state(
+        'active',
+        style({
+          boxShadow: 'inset 0 0 10px 2px rgba(0, 0, 0, .3)'
+        })
+      ),
+      state(
+        'inactive',
+        style({
+          boxShadow: 'none'
+        })
+      ),
       transition('* => *', animate('100ms ease-in'))
     ])
   ]
 })
 export class BattleshipComponent implements OnInit {
-
-  @Input() color: string;
-  @Output() status = new EventEmitter<boolean>();
+  @Input()
+  color: string;
+  @Output()
+  status = new EventEmitter<boolean>();
 
   public shipState = 'vertical';
   public isActive = 'inactive';
 
   public stanceClasses = {
-    'disabled': false
+    disabled: false
   };
   public counter = 0;
 
   private _states = ['vertical', 'horizontal'];
 
-  constructor(private _renderer: Renderer2, private _elementRef: ElementRef, private _editorService: EditorService, private _memoryService: MemoryService) { }
+  constructor(
+    private _renderer: Renderer2,
+    private _elementRef: ElementRef,
+    private _editorService: EditorService,
+    private _memoryService: MemoryService
+  ) {}
 
   ngOnInit() {
-    const battleShip = this._elementRef.nativeElement.querySelectorAll('div.ship > div.icon');
+    const battleShip = this._elementRef.nativeElement.querySelectorAll(
+      'div.ship > div.icon'
+    );
     if (!this.color && this.color.length === 0) {
       this.color = '#000000';
     }
@@ -63,7 +91,7 @@ export class BattleshipComponent implements OnInit {
 
     this._memoryService.shipsChanges.subscribe(ships => {
       this.counter = ships.reduce((n, ship) => {
-        return n + ((ship.shipType === 'battleship') ? 1 : 0);
+        return n + (ship.shipType === 'battleship' ? 1 : 0);
       }, 0);
 
       if (this.counter >= 1) {
@@ -101,5 +129,4 @@ export class BattleshipComponent implements OnInit {
       this._editorService.unsetActiveType('battleship');
     }
   }
-
 }

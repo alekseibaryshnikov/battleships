@@ -1,7 +1,6 @@
-import { IField, ICoordinates } from '../';
+import { ICoordinates } from '../';
 import { IDrawerConfig } from '../interfaces/drawer.interface';
 export class Drawer {
-
   private _context: CanvasRenderingContext2D;
 
   private _matrixSize: number;
@@ -25,9 +24,9 @@ export class Drawer {
   }
 
   constructor(context: CanvasRenderingContext2D, drawerConfig: IDrawerConfig) {
-    for (let propName in drawerConfig) {
+    for (const propName in drawerConfig) {
       if (drawerConfig.hasOwnProperty(propName)) {
-        let thisPropName = `_${propName}`;
+        const thisPropName = `_${propName}`;
         this[thisPropName] = drawerConfig[propName];
       }
     }

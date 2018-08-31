@@ -1,4 +1,12 @@
-import { Component, OnInit, Input, Renderer2, ElementRef, EventEmitter, Output } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  Input,
+  Renderer2,
+  ElementRef,
+  EventEmitter,
+  Output
+} from '@angular/core';
 import { EditorService } from '../../../services/editor.service';
 import { MemoryService } from '../../../services/memory.service';
 import {
@@ -15,73 +23,83 @@ import {
   styleUrls: ['./flattop.component.scss'],
   animations: [
     trigger('shipState', [
-      state('vertical-bottom-right', style({
-        transform: 'rotate(0) scale(1)'
-      })),
-      state('horizontal-top-right', style({
-        transform: 'rotate(-90deg) scale(1)'
-      })),
-      state('vertical-top-left', style({
-        transform: 'rotate(-180deg) scale(1)'
-      })),
-      state('horizontal-bottom-left', style({
-        transform: 'rotate(-270deg) scale(1)'
-      })),
-      state('vertical-bottom-left', style({
-        transform: 'rotate(180deg) scale(1, -1)'
-      })),
-      state('horizontal-bottom-right', style({
-        transform: 'rotate(90deg) scale(1, -1)'
-      })),
-      state('vertical-top-right', style({
-        transform: 'rotate(0) scale(1, -1)'
-      })),
-      state('horizontal-top-left', style({
-        transform: 'rotate(-90deg) scale(1, -1)'
-      })),
+      state(
+        'vertical-bottom-right',
+        style({
+          transform: 'rotate(0) scale(1)'
+        })
+      ),
+      state(
+        'horizontal-top-right',
+        style({
+          transform: 'rotate(-90deg) scale(1)'
+        })
+      ),
+      state(
+        'vertical-top-left',
+        style({
+          transform: 'rotate(-180deg) scale(1)'
+        })
+      ),
+      state(
+        'horizontal-bottom-left',
+        style({
+          transform: 'rotate(-270deg) scale(1)'
+        })
+      ),
       transition('* => *', animate('100ms ease-in'))
     ]),
     trigger('isActive', [
-      state('active', style({
-        boxShadow: 'inset 0 0 10px 2px rgba(0, 0, 0, .3)'
-      })),
-      state('inactive', style({
-        boxShadow: 'none'
-      })),
+      state(
+        'active',
+        style({
+          boxShadow: 'inset 0 0 10px 2px rgba(0, 0, 0, .3)'
+        })
+      ),
+      state(
+        'inactive',
+        style({
+          boxShadow: 'none'
+        })
+      ),
       transition('* => *', animate('100ms ease-in'))
     ])
   ]
 })
 export class FlattopComponent implements OnInit {
-
-  @Input() color: string;
-  @Output() status = new EventEmitter<boolean>();
+  @Input()
+  color: string;
+  @Output()
+  status = new EventEmitter<boolean>();
 
   shipState = 'vertical-bottom-left';
   currentState = 0;
   isActive = 'inactive';
 
   private _stateVariations = [
-    'vertical-bottom-left',
     'vertical-bottom-right',
-    'vertical-top-left',
-    'vertical-top-right',
-    'horizontal-top-left',
-    'horizontal-bottom-left',
     'horizontal-top-right',
-    'horizontal-bottom-right'
+    'vertical-top-left',
+    'horizontal-bottom-left'
   ];
 
   public position = 0;
   public counter = 0;
   public stanceClasses = {
-    'disabled': false
+    disabled: false
   };
 
-  constructor(private _renderer: Renderer2, private _elementRef: ElementRef, private _editorService: EditorService, private _memoryService: MemoryService) { }
+  constructor(
+    private _renderer: Renderer2,
+    private _elementRef: ElementRef,
+    private _editorService: EditorService,
+    private _memoryService: MemoryService
+  ) {}
 
   ngOnInit() {
-    const flattop = this._elementRef.nativeElement.querySelectorAll('div.ship > div.icon');
+    const flattop = this._elementRef.nativeElement.querySelectorAll(
+      'div.ship > div.icon'
+    );
     if (!this.color && this.color.length === 0) {
       this.color = '#000000';
     }
@@ -90,7 +108,7 @@ export class FlattopComponent implements OnInit {
     });
     this._memoryService.shipsChanges.subscribe(ships => {
       this.counter = ships.reduce((n, ship) => {
-        return n + ((ship.shipType === 'flattop') ? 1 : 0);
+        return n + (ship.shipType === 'flattop' ? 1 : 0);
       }, 0);
 
       if (this.counter >= 1) {
@@ -124,7 +142,10 @@ export class FlattopComponent implements OnInit {
     }
 
     if (this.isActive === 'active') {
-      this._editorService.setActiveType('flattop', this._stateVariations[this.currentState]);
+      this._editorService.setActiveType(
+        'flattop',
+        this._stateVariations[this.currentState]
+      );
     } else {
       this._editorService.unsetActiveType('flattop');
     }

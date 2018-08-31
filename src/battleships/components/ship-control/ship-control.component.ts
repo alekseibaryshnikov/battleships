@@ -7,24 +7,27 @@ import { MemoryService } from '../../services/memory.service';
   styleUrls: ['./ship-control.component.scss']
 })
 export class ShipControlComponent implements OnInit, DoCheck {
-
   ships = {
     submarine: true,
     battleship: true,
     flattop: true
-  }
+  };
 
   public stanceClasses = {
-    'disabled': false
-  }
+    disabled: false
+  };
 
-  constructor(private _memoryService: MemoryService) { }
+  constructor(private _memoryService: MemoryService) {}
 
-  ngOnInit() { }
+  ngOnInit() {}
 
   ngDoCheck() {
     if (!this.stanceClasses.disabled) {
-      this.stanceClasses.disabled = !(this.ships.battleship || this.ships.flattop || this.ships.submarine);
+      this.stanceClasses.disabled = !(
+        this.ships.battleship ||
+        this.ships.flattop ||
+        this.ships.submarine
+      );
     } else {
       this._memoryService.startGame();
     }
@@ -41,5 +44,4 @@ export class ShipControlComponent implements OnInit, DoCheck {
   checkFlattop(event: boolean) {
     this.ships.flattop = event;
   }
-
 }
