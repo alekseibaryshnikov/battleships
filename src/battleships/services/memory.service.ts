@@ -63,9 +63,7 @@ export class MemoryService {
 
     ships.forEach(ship => {
       ship.fields.forEach(shipField => {
-        if(fields[shipField.x] && fields[shipField.x][shipField.y]) {
-          fields[shipField.x][shipField.y].isShip = true;
-        }
+        fields[shipField.x][shipField.y].isShip = true;
       });
     });
     return fields;
@@ -253,21 +251,6 @@ export class MemoryService {
     });
 
     this.gameStanceChange.next(enemyShips && userShips);
-  }
-
-  /**
-   * Mark a field in fields storage as ship and mark surrounding fields as ship area
-   */
-  private _setShipInFields(x, y) {
-    const field = this.getField(x, y);
-    if (field) {
-      this._fieldsStorage[field.indexes.x][field.indexes.y].isShip = true;
-      this._setShipArea(field.indexes.x, field.indexes.y);
-    } else {
-      console.error(
-        'Somethig goes wrong with setting ship flag for a field in memory.'
-      );
-    }
   }
 
   /**

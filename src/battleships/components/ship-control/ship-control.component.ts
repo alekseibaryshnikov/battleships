@@ -1,4 +1,4 @@
-import { Component, OnInit, DoCheck } from '@angular/core';
+import { Component, DoCheck } from '@angular/core';
 import { MemoryService } from '../../services/memory.service';
 
 @Component({
@@ -6,7 +6,7 @@ import { MemoryService } from '../../services/memory.service';
   templateUrl: './ship-control.component.html',
   styleUrls: ['./ship-control.component.scss']
 })
-export class ShipControlComponent implements OnInit, DoCheck {
+export class ShipControlComponent implements DoCheck {
   ships = {
     submarine: true,
     battleship: true,
@@ -18,8 +18,6 @@ export class ShipControlComponent implements OnInit, DoCheck {
   };
 
   constructor(private _memoryService: MemoryService) {}
-
-  ngOnInit() {}
 
   ngDoCheck() {
     if (!this.stanceClasses.disabled) {

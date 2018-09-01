@@ -111,6 +111,7 @@ export class EnemyComponent implements OnInit {
           y: userField.indexes.y
         });
 
+
         this._memoryService.changeStep(false);
       }
     });
@@ -162,8 +163,8 @@ export class EnemyComponent implements OnInit {
       let y: number;
 
       while (flag) {
-        x = Math.round(Math.random() * Math.floor(matrixSize));
-        y = Math.round(Math.random() * Math.floor(matrixSize));
+        x = Math.round(Math.random() * Math.floor(matrixSize - 1));
+        y = Math.round(Math.random() * Math.floor(matrixSize - 1));
         const checkField = filledFields.find(field => {
           return field.x === x && field.y === y;
         });
@@ -182,16 +183,16 @@ export class EnemyComponent implements OnInit {
      * Make battleship
      * @returns Array<{x: number, y: number}> coordinates array
      */
-    const battleship = (): { coordinates: Array<{ x: number, y: number }>, rotation: number } => {
+    const battleship = (): { coordinates: Array<ICoordinates>, rotation: number } => {
       let flag = true;
       let x: number;
       let y: number;
       let rotate: number;
-      const flattopCoords = new Array<{ x: number; y: number }>();
+      const flattopCoords = new Array<ICoordinates>();
 
       while (flag) {
-        x = Math.round(Math.random() * Math.floor(matrixSize));
-        y = Math.round(Math.random() * Math.floor(matrixSize));
+        x = Math.round(Math.random() * Math.floor(matrixSize - 1));
+        y = Math.round(Math.random() * Math.floor(matrixSize - 1));
 
         const checkField = filledFields.find(field => {
           return field.x === x && field.y === y;

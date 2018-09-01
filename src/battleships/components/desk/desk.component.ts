@@ -29,6 +29,10 @@ export class DeskComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    // Initilize user desk
+    this._context = this._elementRef.nativeElement.querySelector('canvas#desk').getContext('2d');
+    this._drawerService.initDesk(this._context);
+
     // Look for changing brush
     this._editorService.activatedType.subscribe(activatedType => {
       this._activeBrush = activatedType.find(activeBrush => {
@@ -57,13 +61,6 @@ export class DeskComponent implements OnInit {
     this._memoryService.gameStanceChange.subscribe(stance => {
       this.gameStance = stance;
     });
-  }
-
-  ngAfterViewInit() {
-    this._context = this._elementRef.nativeElement
-      .querySelector('canvas#desk')
-      .getContext('2d');
-    this._drawerService.initDesk(this._context);
   }
 
   /**
