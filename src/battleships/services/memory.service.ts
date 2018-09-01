@@ -21,13 +21,11 @@ export class MemoryService {
   public gameStarted = new Subject<boolean>();
   public AIStep = new Subject<boolean>();
 
-  constructor() {}
+  constructor() { }
 
   /**
    * Add drawed desk fields in fields storage
    *
-   * TODO: Need to make method what will reset this storage
-   *       when we are changing coordinates of window (resize, scrolls, etc).
    */
   public addDesk(field: IField[][]) {
     this._fieldsStorage = field;
@@ -49,11 +47,14 @@ export class MemoryService {
   }
 
   /**
-   * Add enemys storage
+   * Add enemys storage with generated ships
    */
-  public addEnemyDesk(field: IField[][]) {
+  public async addEnemyDesk(field: IField[][], ships: IShip[]) {
     this._enemyStorage = field;
-    this.enemyChanges.next(this._enemyStorage.slice());
+    await this.enemyChanges.next(this._enemyStorage.slice());
+
+    this.addEnemyShips(ships);
+    this.enemyShipsChanges.next(this._enemyShips.slice());
   }
 
   /**
@@ -86,11 +87,7 @@ export class MemoryService {
    * Get field from fields storage by coodrinates
    * and return field and indexes for fields storage array
    */
-  public getField(
-    x: number,
-    y: number,
-    enemy?: boolean
-  ): { wanted: IField; indexes: { x: number; y: number } } {
+  public getField(x: number, y: number, enemy?: boolean): { wanted: IField; indexes: { x: number; y: number } } {
     let wanted: IField;
     const indexes = <{ x: number; y: number }>{};
     const researchStorage = enemy ? this._enemyStorage : this._fieldsStorage;
@@ -257,18 +254,6 @@ export class MemoryService {
     });
 
     this.gameStanceChange.next(enemyShips && userShips);
-  }
-
-  /**
-   * Generate empty matrix for fields storage
-   * TODO : may should be deleted, already exist in desk util
-   */
-  private _make() {
-    const matrix = [];
-    for (let i = 0; i < 10; i++) {
-      matrix[i] = new Array(10);
-    }
-    return matrix;
   }
 
   /**

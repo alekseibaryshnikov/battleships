@@ -24,38 +24,51 @@ export class EnemyComponent implements OnInit {
     private _elementRef: ElementRef,
     private _memoryService: MemoryService,
     private _render: Renderer2
-  ) {}
+  ) { }
 
   ngOnInit() {
-    this._context = this._elementRef.nativeElement
-      .querySelector('canvas#enemy-desk')
-      .getContext('2d');
+    /**
+     * Pepare canvas with settings
+     */
+    this._context = this._elementRef.nativeElement.querySelector('canvas#enemy-desk').getContext('2d');
     const canvasPosition = this._elementRef.nativeElement.getBoundingClientRect();
     this._correction = { x: canvasPosition.x, y: canvasPosition.y };
-    this._drawerService.initEnemyDesk(this._context, this._correction);
 
-    // TODO: Yeah, I know that it is crutch and it should be refactored in Agnular convention :) I am sorry, I had no time :(
-    setTimeout(() => {
-      this._setEnemyShips();
-    }, 1);
+    /**
+     * Initialise enemy desk and fill these fields array with
+     * random ships
+     */
+    this._drawerService.initEnemyDesk(this._context, this._correction, this._setEnemyShips(2, 1, 1));
 
+    /**
+     * Subscrive on to enemy fields which is loading above
+     * when desk was initialized
+     */
+    this._memoryService.enemyChanges.subscribe(fields => {
+      this._enemyFields = fields;
+      this._drawerService.drawHittedEmeny(this._context, fields, this._correction);
+    });
+
+    /**
+     * Subscribe on to enemy ships changes
+     */
     this._memoryService.enemyShipsChanges.subscribe(ships => {
       this._enemyShips = ships;
     });
-    this._memoryService.enemyChanges.subscribe(fields => {
-      this._enemyFields = fields;
-      this._drawerService.drawHittedEmeny(
-        this._context,
-        fields,
-        this._correction
-      );
-    });
 
+    /**
+     * Subscribe on to game status
+     * If no enemy ships or user ships on the desk game are stoping
+     */
     this._memoryService.gameStarted.subscribe(started => {
       this.isGameStarted = started;
       this.stanceClasses.started = started;
     });
 
+    /**
+     * Pseudo AI player
+     * It is subscrining on to steps changes
+     */
     this._memoryService.AIStep.subscribe(isAI => {
       if (isAI) {
         let chooseField = true;
@@ -67,7 +80,7 @@ export class EnemyComponent implements OnInit {
           if (
             counter >
             this._drawerService.drawerConfig.matrixSize *
-              this._drawerService.drawerConfig.matrixSize
+            this._drawerService.drawerConfig.matrixSize
           ) {
             chooseField = true;
             this._memoryService.gameStanceChange.next(false);
@@ -76,11 +89,11 @@ export class EnemyComponent implements OnInit {
           // Get random field coords on the user desk
           const randomX = Math.floor(
             Math.random() *
-              Math.floor(this._drawerService.drawerConfig.matrixSize)
+            Math.floor(this._drawerService.drawerConfig.matrixSize)
           );
           const randomY = Math.floor(
             Math.random() *
-              Math.floor(this._drawerService.drawerConfig.matrixSize)
+            Math.floor(this._drawerService.drawerConfig.matrixSize)
           );
 
           // Check field for availability
@@ -108,7 +121,7 @@ export class EnemyComponent implements OnInit {
   }
 
   /**
-   * Hit field
+   * Hit field by user
    */
   public hit(event) {
     const field = this._memoryService.getField(event.x, event.y, true);
@@ -135,17 +148,17 @@ export class EnemyComponent implements OnInit {
 
   /**
    * Preload enemy ships
-   * TODO: Neet to make randomizer for stetting ships in random places
    */
-  private _setEnemyShips() {
+  private _setEnemyShips(submarineCount: number, flattopCount: number, battleshipCount: number): Array<IShip> {
     // Pseudo AI
     // Set the ships
     const ships = new Array<IShip>();
-    const filledFields = new Array<{ x: number; y: number }>();
     const matrixSize = this._drawerService.drawerConfig.matrixSize;
+    let filledFields = new Array<{ x: number; y: number }>();
 
     /**
      * Make submarine
+     * @returns { x: number, y: number } coordinates
      */
     const submarine = (): { x: number; y: number } => {
       let flag = true;
@@ -169,7 +182,11 @@ export class EnemyComponent implements OnInit {
       return { x, y };
     };
 
-    const flattop = () => {
+    /**
+     * Make battleship
+     * @returns Array<{x: number, y: number}> coordinates array
+     */
+    const battleship = (): { coordinates: Array<{ x: number, y: number }>, rotation: number } => {
       let flag = true;
       let x: number;
       let y: number;
@@ -179,25 +196,103 @@ export class EnemyComponent implements OnInit {
       while (flag) {
         x = Math.round(Math.random() * Math.floor(matrixSize));
         y = Math.round(Math.random() * Math.floor(matrixSize));
-        rotate = Math.round(Math.random() * Math.floor(1));
-
-        if (rotate > 0 && (x - 1 > 0 && x + 1 <= matrixSize)) {
-          flattopCoords.push({ x, y }, { x: x + 1, y }, { x: x - 1, y });
-          flag = false;
-        } else if (rotate === 0 && (y - 1 > 0 && y + 1 <= matrixSize)) {
-          flattopCoords.push({ x, y }, { x, y: y + 1 }, { x, y: y - 1 });
-          flag = false;
-        }
 
         const checkField = filledFields.find(field => {
           return field.x === x && field.y === y;
         });
 
-        if (!checkField) {
+        if (checkField) {
+          continue;
+        }
+
+        rotate = Math.round(Math.random());
+
+        if (rotate > 0 && (x - 1 >= 0 && x + 1 < matrixSize)) {
+          if (checkFields(x, y)) {
+            continue;
+          } else if (checkFields(x + 1, y)) {
+            continue;
+          } else if (checkFields(x - 1, y)) {
+            continue;
+          }
+
+          flattopCoords.push({ x, y }, { x: x + 1, y }, { x: x - 1, y });
+          flag = false;
+        } else if (rotate === 0 && (y - 1 >= 0 && y + 1 < matrixSize)) {
+          if (checkFields(x, y)) {
+            continue;
+          } else if (checkFields(x, y + 1)) {
+            continue;
+          } else if (checkFields(x, y - 1)) {
+            continue;
+          }
+
+          flattopCoords.push({ x, y }, { x, y: y + 1 }, { x, y: y - 1 });
           flag = false;
         }
       }
+
+      flattopCoords.forEach(coordinate => {
+        markFieldsAsFilled(coordinate.x, coordinate.y);
+      });
+      return { coordinates: flattopCoords, rotation: rotate };
     };
+
+    /**
+     * Make flattop ship from battleship
+     * Rotation: 0 - vertical, 1 - horizontal
+     * @returns { coordinates: Array<{ x: number, y: number }>, rotation: number }
+     */
+    const flattop = (): { coordinates: Array<{ x: number, y: number }>, rotation: number } => {
+      let flag = true;
+      let takeOffDeckCoordinate: { x: number, y: number };
+      let flattop: { coordinates: Array<{ x: number, y: number }>, rotation: number };
+
+      while (flag) {
+        const battleshipPart = battleship();
+        if (battleshipPart.rotation === 0) {
+          const takeOffDeckPosition = Math.round(Math.random() * Math.floor(1));
+
+          if (takeOffDeckPosition === 1) {
+            if (battleshipPart.coordinates[0].x - 1 < 0 || battleshipPart.coordinates[0].y - 1 < 0) {
+              continue;
+            }
+
+            takeOffDeckCoordinate = { x: battleshipPart.coordinates[0].x - 1, y: battleshipPart.coordinates[0].y - 1 };
+          } else {
+            if (battleshipPart.coordinates[0].x + 1 > matrixSize || battleshipPart.coordinates[0].y + 1 > matrixSize) {
+              continue;
+            }
+
+            takeOffDeckCoordinate = { x: battleshipPart.coordinates[0].x + 1, y: battleshipPart.coordinates[0].y + 1 };
+          }
+
+          battleshipPart.coordinates.concat(takeOffDeckCoordinate).forEach(coordinate => {
+            markFieldsAsFilled(coordinate.x, coordinate.y);
+          });
+
+          flattop = { coordinates: battleshipPart.coordinates.concat(takeOffDeckCoordinate), rotation: battleshipPart.rotation };
+
+          flag = false;
+        }
+      }
+
+      return flattop;
+    };
+
+    /**
+     * Check around fields of current field in existing fields array
+     * @param x axis coordinate of field
+     * @param y axis coordinate of field
+     * @param storage Array<{x: number, y: number}>
+     */
+    const checkFields = (x: number, y: number) => {
+      let finding = filledFields.find(field => {
+        return field.x === x && field.y === y;
+      });
+
+      return finding ? true : false;
+    }
 
     /**
      * Return array with area fields for a point
@@ -211,63 +306,63 @@ export class EnemyComponent implements OnInit {
       filledFields.push({ x, y });
 
       // Mark as used fields for pillar: ::|
-      if (x + 1 <= matrixSize && y + 1 <= matrixSize) {
+      if (x + 1 < matrixSize && y + 1 < matrixSize) {
         filledFields.push({ x: x + 1, y: y + 1 });
       }
-      if (x + 1 <= matrixSize) {
+      if (x + 1 < matrixSize) {
         filledFields.push({ x: x + 1, y });
       }
-      if (x + 1 <= matrixSize && y - 1 > 0) {
+      if (x + 1 < matrixSize && y - 1 >= 0) {
         filledFields.push({ x: x + 1, y: y - 1 });
       }
 
       // Mark as used fields for pillar: :|:
-      if (y + 1 <= matrixSize) {
+      if (y + 1 < matrixSize) {
         filledFields.push({ x, y: y + 1 });
       }
-      if (y - 1 > 0) {
+      if (y - 1 >= 0) {
         filledFields.push({ x, y: y - 1 });
       }
 
       // Mark as used fields for pillar: |::
-      if (x - 1 > 0 && y + 1 <= matrixSize) {
+      if (x - 1 >= 0 && y + 1 < matrixSize) {
         filledFields.push({ x: x - 1, y: y + 1 });
       }
-      if (x - 1 > 0) {
+      if (x - 1 >= 0) {
         filledFields.push({ x: x - 1, y });
       }
-      if (x - 1 > 0 && y - 1 > 0) {
+      if (x - 1 >= 0 && y - 1 >= 0) {
         filledFields.push({ x: x - 1, y: y - 1 });
       }
     };
 
-    ships.push(
-      {
-        fields: [{ x: 0, y: 0 }],
+    // Generate sumbraines
+    for (let i = 1; i <= submarineCount; i++) {
+      ships.push({
+        fields: [submarine()],
         shipType: 'submarine',
         status: true
-      },
-      {
-        fields: [{ x: 9, y: 9 }],
-        shipType: 'submarine',
-        status: true
-      },
-      {
-        fields: [{ x: 2, y: 2 }, { x: 3, y: 2 }, { x: 4, y: 2 }],
+      });
+    }
+
+    // Generate battleships
+    for (let i = 1; i <= battleshipCount; i++) {
+      ships.push({
+        fields: battleship().coordinates,
         shipType: 'battleship',
         status: true
-      },
-      {
-        fields: [
-          { x: 3, y: 9 },
-          { x: 4, y: 9 },
-          { x: 5, y: 9 },
-          { x: 5, y: 8 }
-        ],
-        shipType: 'battleship',
+      });
+    }
+
+    // Generate flattops
+    for (let i = 1; i <= flattopCount; i++) {
+      ships.push({
+        fields: flattop().coordinates,
+        shipType: 'flattop',
         status: true
-      }
-    );
-    this._memoryService.addEnemyShips(ships);
+      });
+    }
+
+    return ships;
   }
 }

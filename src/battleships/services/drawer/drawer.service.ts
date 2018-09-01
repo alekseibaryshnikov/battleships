@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs';
 import {
   IField,
   IDrawerConfig,
@@ -7,11 +6,9 @@ import {
   ICoordinates,
   IHoverShip
 } from './interfaces';
-import { FieldType } from './types';
 import { Desk, Drawer } from './utils';
 
 // Services
-import { EditorService } from '../editor.service';
 import { MemoryService } from '../memory.service';
 
 @Injectable()
@@ -19,7 +16,6 @@ export class DrawerService {
   /**
    * Desk settings
    *
-   * TODO: move it to module config (injectable token..)
    */
   private _drawerConfig = <IDrawerConfig>{
     gap: 3,
@@ -31,12 +27,7 @@ export class DrawerService {
     return this._drawerConfig;
   }
 
-  private _memory: IField[][];
-
-  constructor(
-    private _editorService: EditorService,
-    private _memoryService: MemoryService
-  ) {}
+  constructor(private _memoryService: MemoryService) { }
 
   /**
    * Initialize the desk and fill memory storage with fields
@@ -49,36 +40,25 @@ export class DrawerService {
   /**
    * Initialize enemy desk and fill memory storage with fields
    */
-  public initEnemyDesk(
-    context: CanvasRenderingContext2D,
-    correction: ICoordinates
-  ) {
+  public initEnemyDesk(context: CanvasRenderingContext2D, correction: ICoordinates, ships: IShip[]) {
     const desk = new Desk(new Drawer(context, this._drawerConfig));
-    this._memoryService.addEnemyDesk(desk.draw(correction));
+    this._memoryService.addEnemyDesk(desk.draw(correction), ships);
   }
 
   /**
    * Submarine brush
-   *
-   * TODO: Check rotation argument in desk component and remove if possible and
-   *       think how to remove it if currently impossible to remove
    */
-  public submarineBrush(
-    context: CanvasRenderingContext2D,
-    field,
-    rotation?: string
-  ) {
-    if (
-      this._memoryService.checkFieldForAvailability(
-        field.indexes.x,
-        field.indexes.y
-      )
-    ) {
+  public submarineBrush(context: CanvasRenderingContext2D, field, rotation?: string) {
+    if (this._memoryService.checkFieldForAvailability(field.indexes.x, field.indexes.y)) {
       const drawer = new Drawer(context, this._drawerConfig);
       const coordinates = new Array<ICoordinates>();
+
       coordinates.push({ x: field.wanted.x.start, y: field.wanted.y.start });
+
       this.redrawDesk(context);
+
       drawer.drawShip('#ccc', ...coordinates);
+
       const hoveredShip: IHoverShip = { coordinates, shipType: 'submarine' };
       this._memoryService.hoveredShipChanged(hoveredShip);
     } else {
@@ -89,13 +69,10 @@ export class DrawerService {
   /**
    * Battleship brush
    */
-  public battleshipBrush(
-    context: CanvasRenderingContext2D,
-    field,
-    rotation: string
-  ) {
+  public battleshipBrush(context: CanvasRenderingContext2D, field, rotation: string) {
     const drawer = new Drawer(context, this._drawerConfig);
     const coordinates = new Array<ICoordinates>();
+
     for (let i = 0; i < 3; i++) {
       const nextField = this._getNextFieldForBattleships(field, i, rotation);
       if (nextField) {
@@ -104,27 +81,19 @@ export class DrawerService {
         return false;
       }
     }
+
     this.redrawDesk(context);
+
     drawer.drawShip('#ccc', ...coordinates);
+
     const hoveredShip: IHoverShip = { coordinates, shipType: 'battleship' };
     this._memoryService.hoveredShipChanged(hoveredShip);
   }
 
   /**
    * Flattop brush
-   *
-   * Notice:
-   *
-   * I think ships should be moved to separated classes with same interfaces
-   * but currently that is no need because we will have one class with one method
-   * which implementing interface with one method.. That is cool when you have
-   * hundreds game objects but not here (btw I was trying to make it)
    */
-  public flattopBrush(
-    context: CanvasRenderingContext2D,
-    field,
-    rotation: string
-  ) {
+  public flattopBrush(context: CanvasRenderingContext2D, field, rotation: string) {
     const drawer = new Drawer(context, this._drawerConfig);
     const coordinates = new Array<ICoordinates>();
 
@@ -308,11 +277,7 @@ export class DrawerService {
   /**
    * Get field for the multifields ships like battleship or flattop
    */
-  private _getNextFieldForBattleships(
-    field,
-    index: number,
-    rotation: string
-  ): IField {
+  private _getNextFieldForBattleships(field, index: number, rotation: string): IField {
     if (rotation && rotation === 'horizontal') {
       if (
         this._memoryService.checkFieldForAvailability(
