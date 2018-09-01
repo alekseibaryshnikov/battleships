@@ -75,7 +75,7 @@ export class BattleshipComponent implements OnInit {
     private _elementRef: ElementRef,
     private _editorService: EditorService,
     private _memoryService: MemoryService
-  ) {}
+  ) { }
 
   ngOnInit() {
     const battleShip = this._elementRef.nativeElement.querySelectorAll(

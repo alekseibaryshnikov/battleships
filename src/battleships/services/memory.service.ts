@@ -49,27 +49,26 @@ export class MemoryService {
   /**
    * Add enemys storage with generated ships
    */
-  public async addEnemyDesk(field: IField[][], ships: IShip[]) {
-    this._enemyStorage = field;
-    await this.enemyChanges.next(this._enemyStorage.slice());
-
-    this.addEnemyShips(ships);
-    this.enemyShipsChanges.next(this._enemyShips.slice());
+  public addEnemyDesk(fields: IField[][], ships: IShip[]) {
+    this._enemyStorage = this.addEnemyShips(ships, fields);
+    this.enemyChanges.next(this._enemyStorage.slice());
   }
 
   /**
    * Add enemy ships
    */
-  public addEnemyShips(ships: IShip[]) {
+  public addEnemyShips(ships: IShip[], fields: IField[][]) {
     this._enemyShips = ships;
     this.enemyShipsChanges.next(this._enemyShips.slice());
 
-    this._enemyShips.forEach(ship => {
+    ships.forEach(ship => {
       ship.fields.forEach(shipField => {
-        this._enemyStorage[shipField.x][shipField.y].isShip = true;
+        if(fields[shipField.x] && fields[shipField.x][shipField.y]) {
+          fields[shipField.x][shipField.y].isShip = true;
+        }
       });
     });
-    this.enemyChanges.next(this._enemyStorage.slice());
+    return fields;
   }
 
   /**

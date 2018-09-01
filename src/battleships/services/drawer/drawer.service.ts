@@ -13,9 +13,9 @@ import { MemoryService } from '../memory.service';
 
 @Injectable()
 export class DrawerService {
+
   /**
    * Desk settings
-   *
    */
   private _drawerConfig = <IDrawerConfig>{
     gap: 3,
@@ -42,7 +42,8 @@ export class DrawerService {
    */
   public initEnemyDesk(context: CanvasRenderingContext2D, correction: ICoordinates, ships: IShip[]) {
     const desk = new Desk(new Drawer(context, this._drawerConfig));
-    this._memoryService.addEnemyDesk(desk.draw(correction), ships);
+    const fields = desk.draw(correction);
+    this._memoryService.addEnemyDesk(fields, ships);
   }
 
   /**

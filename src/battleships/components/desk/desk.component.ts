@@ -1,26 +1,16 @@
-import {
-  Component,
-  OnInit,
-  OnDestroy,
-  AfterViewInit,
-  ElementRef,
-  Renderer2,
-  Input
-} from '@angular/core';
+import { Component, OnInit, ElementRef } from '@angular/core';
 import { MemoryService } from '../../services/memory.service';
 import { EditorService } from '../../services/editor.service';
 import { DrawerService } from '../../services/drawer/drawer.service';
 
 import { IShip, IField, IHoverShip } from '../../services/drawer';
 
-import { Subscription } from 'rxjs';
-
 @Component({
   selector: 'battleships-desk',
   templateUrl: './desk.component.html',
   styleUrls: ['./desk.component.scss']
 })
-export class DeskComponent implements OnInit, AfterViewInit {
+export class DeskComponent implements OnInit {
   private _context: CanvasRenderingContext2D;
   private _activeBrush;
   private _hoveredShip: IHoverShip;
@@ -29,16 +19,14 @@ export class DeskComponent implements OnInit, AfterViewInit {
 
   public isActive: boolean;
 
-  public statusClasses = {
-    gameover: false
-  };
+  public gameStance: boolean = true;
 
   constructor(
     private _elementRef: ElementRef,
     private _drawerService: DrawerService,
     private _memoryService: MemoryService,
     private _editorService: EditorService
-  ) {}
+  ) { }
 
   ngOnInit() {
     // Look for changing brush
@@ -59,13 +47,15 @@ export class DeskComponent implements OnInit, AfterViewInit {
       this._drawerService.drawShips(this._context, this._userShips);
     });
 
+    // Subscribe on to fields changing
     this._memoryService.fieldsChanges.subscribe(fields => {
       this._fieldsStorage = fields;
       this._drawerService.drawHittedUsers(this._context, fields);
     });
 
+    // Subscribe on to game stance
     this._memoryService.gameStanceChange.subscribe(stance => {
-      this.statusClasses.gameover = !stance;
+      this.gameStance = stance;
     });
   }
 
@@ -104,6 +94,7 @@ export class DeskComponent implements OnInit, AfterViewInit {
   resetEditor(event) {
     if (event) {
       this._drawerService.redrawDesk(this._context);
+      this._memoryService.hoveredShipChanges.next(undefined);
     }
   }
 

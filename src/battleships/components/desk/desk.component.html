@@ -1,8 +1,12 @@
-<div class="surface" [ngClass]="statusClasses">
-	<div class="desk-wrapper">
-		<canvas id="desk" width="303" height="303" battleshipsOutclick UserInteractionDirective
-		 (targetCoords)="emitEditor($event)" (outclicked)="resetEditor($event)" (click)="addShip()"></canvas>
-	</div>
+<div *ngIf="!gameStance" class="game-over">
+  <h1>Game over!</h1>
+</div>
+
+<div class="surface" [class.disabled]="!gameStance">
+  <div class="desk-wrapper">
+    <canvas id="desk" width="303" height="303" battleshipsOutclick UserInteractionDirective (targetCoords)="emitEditor($event)"
+      (outclicked)="resetEditor($event)" (click)="addShip()"></canvas>
+  </div>
   <div class="enemy-desk-wrapper">
     <battleships-enemy></battleships-enemy>
   </div>

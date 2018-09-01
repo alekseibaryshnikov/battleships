@@ -77,11 +77,7 @@ export class EnemyComponent implements OnInit {
         // Set counter for prevent infinity loop (max nubmer is desk square)
         let counter = 0;
         while (chooseField) {
-          if (
-            counter >
-            this._drawerService.drawerConfig.matrixSize *
-            this._drawerService.drawerConfig.matrixSize
-          ) {
+          if (counter > this._drawerService.drawerConfig.matrixSize * this._drawerService.drawerConfig.matrixSize) {
             chooseField = true;
             this._memoryService.gameStanceChange.next(false);
           }
@@ -241,12 +237,12 @@ export class EnemyComponent implements OnInit {
     /**
      * Make flattop ship from battleship
      * Rotation: 0 - vertical, 1 - horizontal
-     * @returns { coordinates: Array<{ x: number, y: number }>, rotation: number }
+     * @returns { coordinates: Array<ICoordinates}>, rotation: number }
      */
-    const flattop = (): { coordinates: Array<{ x: number, y: number }>, rotation: number } => {
+    const flattop = (): { coordinates: Array<ICoordinates>, rotation: number } => {
       let flag = true;
-      let takeOffDeckCoordinate: { x: number, y: number };
-      let flattop: { coordinates: Array<{ x: number, y: number }>, rotation: number };
+      let takeOffDeckCoordinate: ICoordinates;
+      let flattop: { coordinates: Array<ICoordinates>, rotation: number };
 
       while (flag) {
         const battleshipPart = battleship();
@@ -267,9 +263,7 @@ export class EnemyComponent implements OnInit {
             takeOffDeckCoordinate = { x: battleshipPart.coordinates[0].x + 1, y: battleshipPart.coordinates[0].y + 1 };
           }
 
-          battleshipPart.coordinates.concat(takeOffDeckCoordinate).forEach(coordinate => {
-            markFieldsAsFilled(coordinate.x, coordinate.y);
-          });
+          markFieldsAsFilled(takeOffDeckCoordinate.x, takeOffDeckCoordinate.y);
 
           flattop = { coordinates: battleshipPart.coordinates.concat(takeOffDeckCoordinate), rotation: battleshipPart.rotation };
 
@@ -336,6 +330,15 @@ export class EnemyComponent implements OnInit {
       }
     };
 
+    // Generate flattops and generate it first to avoid hard calculating surrounded fields for it
+    for (let i = 1; i <= flattopCount; i++) {
+      ships.push({
+        fields: flattop().coordinates,
+        shipType: 'flattop',
+        status: true
+      });
+    }
+
     // Generate sumbraines
     for (let i = 1; i <= submarineCount; i++) {
       ships.push({
@@ -350,15 +353,6 @@ export class EnemyComponent implements OnInit {
       ships.push({
         fields: battleship().coordinates,
         shipType: 'battleship',
-        status: true
-      });
-    }
-
-    // Generate flattops
-    for (let i = 1; i <= flattopCount; i++) {
-      ships.push({
-        fields: flattop().coordinates,
-        shipType: 'flattop',
         status: true
       });
     }
