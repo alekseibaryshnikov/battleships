@@ -1,5 +1,9 @@
 # battleships
 
+One of home task for job offer.
+Here I have to make game 'Battleships' with 3 figures and rules like in real world.
+Also game has to have AI player.
+
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 1.2.1.
 
 ## Development server
